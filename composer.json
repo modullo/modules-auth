@@ -1,0 +1,38 @@
+{
+  "name": "modullo/modules-auth",
+  "description": "Modullo Authentication Module",
+  "type": "library",
+  "license": "GPL-3.0-or-later",
+  "authors": [
+    {
+      "name": "Ayotomide Aina",
+      "email": "ayotomideaina@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.3",
+    "aws/aws-sdk-php": "^3.74",
+    "laravel/framework": "^8.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^7.5"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "sort-packages": true
+  },
+  "autoload": {
+    "psr-4": {
+      "Modullo\\ModulesAuth\\": "src/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Modullo\\ModulesAuth\\ModulesAuthServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
