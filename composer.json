@@ -34,5 +34,18 @@
     }
   },
   "minimum-stability": "dev",
-  "prefer-stable": true
+  "prefer-stable": true,
+  "scripts": {
+
+
+    "post-install-cmd": [
+      "Illuminate\\Foundation\\ComposerScripts::postInstall",
+      "php artisan optimize",
+      "php artisan vendor:publish"
+    ],
+    "post-update-cmd": [
+      "php artisan optimize",
+      "php artisan vendor:publish"
+    ]
+  }
 }

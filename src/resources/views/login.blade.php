@@ -8,23 +8,33 @@
         <div class="flex-fill d-flex flex-column justify-content-center py-4">
             <div class="container-tight py-6">
                 <div class="text-center mb-4">
-                    <a ><img src="{{asset('modullo-png.png')}}" height="36" alt=""></a>
+                    <a ><img src="{{$company_logo}}" height="36" alt=""></a>
                 </div>
+                @if ($errors->any())
+                <div  class="alert alert-danger" role="alert">
+                    @foreach ($errors->all() as $error)
+                        <li class="text-decoration-none">{{ $error }}</li>
+                    @endforeach
+                </div>
+                @endif
+
+
                 <form class="card card-md" action="{{route('auth.login')}}" method="post" autocomplete="off">
                     @csrf
                     <div class="card-body">
+
                         <h2 class="card-title text-center mb-4">Login to your account</h2>
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
                             <input class="form-control" type="email" name="email" value="{{ old('email') }}" placeholder="Email">
-                            @error('email') {{ $message }} @enderror
+                            <div class="text-danger">@error('email') {{ $message }} @enderror</div>
                         </div>
                         <div class="mb-2">
                             <label class="form-label">Password</label>
-                            <div class="input-group input-group-flat">
+                            <div class="mb-3">
                                 <input class="form-control" type="password" name="password" value="{{ old('password') }}"
                                         placeholder="Password">
-                                @error('password') {{ $message }} @enderror
+                                <div class="text-danger">@error('password') {{ $message }} @enderror</div>
 
                             </div>
                         </div>
@@ -41,7 +51,8 @@
 
                 </form>
                 <div class="text-center text-muted mt-3">
-                    Don't have account yet? <a href="./sign-up.html" tabindex="-1">Sign up</a>
+                    Don't have account yet? <a href="{{route('register')}}" tabindex="-1">Sign up</a>
+
                 </div>
             </div>
         </div>
