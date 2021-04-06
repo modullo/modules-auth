@@ -35,12 +35,13 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
   public function showLoginForm(){
     $this->data['company_logo'] = config('modules-auth.view.company_logo') ?? asset('vendor/modules-auth/logo/modullo.png');
+
     return view('modules-auth::login',$this->data);
   }
 
   public function showRegisterForm(){
 
-    $this->data['company_logo'] = config('modules-auth.company_logo') ?? asset('vendor/modules-auth/logo/modullo.png');
+    $this->data['company_logo'] = config('modules-auth.view.company_logo') ?? asset('vendor/modules-auth/logo/modullo.png');
     return view('modules-auth::register',$this->data);
   }
 
