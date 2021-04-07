@@ -26,14 +26,14 @@
                         <h2 class="card-title text-center mb-4">Register  your account</h2>
                         <div class="mb-3">
                             <label class="form-label">First Name</label>
-                            <input class="form-control" type="email" name="first_name" value="{{ old('first_name') }}"
+                            <input class="form-control" type="text" name="first_name" value="{{ old('first_name') }}"
                                    placeholder="First Name">
                             <div class="text-danger">@error('first_name') {{ $message }} @enderror</div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">First Name</label>
-                            <input class="form-control" type="last_name" name="last_name" value="{{ old('last_name') }}"
+                            <label class="form-label">Last Name</label>
+                            <input class="form-control" type="text" name="last_name" value="{{ old('last_name') }}"
                                    placeholder="Last Name">
                             <div class="text-danger">@error('last_name') {{ $message }} @enderror</div>
                         </div>

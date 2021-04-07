@@ -102,7 +102,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
      try {
        $response = create_account($sdk, [
          'email' => $request->input('email'),
-         'password' => $request->input('email'),
+         'password' => $request->input('password'),
          'first_name' => $request->input('first_name'),
          'last_name' => $request->input('last_name'),
          'phone_number' => $request->input('phone_number'),
