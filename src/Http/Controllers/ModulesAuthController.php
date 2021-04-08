@@ -99,6 +99,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
       'first_name' => 'required',
       'phone_number' => 'required',
     ]);
+
      try {
        $response = create_account($sdk, [
          'email' => $request->input('email'),
@@ -107,6 +108,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
          'last_name' => $request->input('last_name'),
          'phone_number' => $request->input('phone_number'),
        ]);
+
        if (!$response->isSuccessful()) {
          return redirect()->route('register')->withErrors(
            [
@@ -129,7 +131,6 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
     }
 
   }
-
 
   protected function create($user,$sdk,$response){
     DB::transaction(function () use ($sdk,&$user,$response){

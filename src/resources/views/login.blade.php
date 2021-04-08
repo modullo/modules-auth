@@ -8,7 +8,7 @@
         <div class="flex-fill d-flex flex-column justify-content-center py-4">
             <div class="container-tight py-6">
                 <div class="text-center mb-4">
-                    <a ><img src="{{$company_logo}}" height="36" alt=""></a>
+                    <a ><img src="{{$company_logo}}" height="100" alt=""></a>
                 </div>
                 @if ($errors->any())
                 <div  class="alert alert-danger" role="alert">
