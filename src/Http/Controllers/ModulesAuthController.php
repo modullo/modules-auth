@@ -85,7 +85,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
   protected function loginRedirect(User $user){
     Auth::guard('web')->login($user);
-    return redirect()->route('modullo.home');
+    return redirect()->route('dev-dashboard');
   }
 
 
