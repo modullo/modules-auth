@@ -32,11 +32,7 @@
                         </div>
 
                         <div class="mb-3">
-<<<<<<< HEAD
                             <label class="form-label">Last Name</label>
-=======
-                            <label class="form-label">First Name</label>
->>>>>>> d70cbb3d9336f97de636318d733c390bb0315521
                             <input class="form-control" type="text" name="last_name" value="{{ old('last_name') }}"
                                    placeholder="Last Name">
                             <div class="text-danger">@error('last_name') {{ $message }} @enderror</div>
