@@ -103,7 +103,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
   protected function loginRedirect(User $user){
     Auth::guard('web')->login($user);
-    return redirect()->route('modullo.home');
+    return redirect()->route('dev-dashboard');
   }
 
 
@@ -123,7 +123,6 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
       'first_name' => 'required',
       'phone_number' => 'required',
     ]);
-
 
      try {
        $response = create_account($sdk, [
@@ -157,7 +156,6 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
     }
 
   }
-
 
   protected function create($user,$sdk,$response){
     DB::transaction(function () use ($sdk,&$user,$response){
