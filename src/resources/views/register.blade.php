@@ -32,7 +32,11 @@
                         </div>
 
                         <div class="mb-3">
+<<<<<<< HEAD
                             <label class="form-label">Last Name</label>
+=======
+                            <label class="form-label">First Name</label>
+>>>>>>> d70cbb3d9336f97de636318d733c390bb0315521
                             <input class="form-control" type="text" name="last_name" value="{{ old('last_name') }}"
                                    placeholder="Last Name">
                             <div class="text-danger">@error('last_name') {{ $message }} @enderror</div>
@@ -62,6 +66,49 @@
 
                             </div>
                         </div>
+
+                        @if ($custom_form_fields)
+                            @foreach($form_fields as $field)
+                                <div class="mb-2">
+                                    <label class="form-label">{{$field['field_name']}}</label>
+                                    <div class="mb-3">
+                                        @switch($field['field_type'])
+                                            @case('string')
+                                                <input class="form-control"
+                                                       type="text"
+                                                       name="{{$field['field_name']}}"
+                                                       value="{{ old($field['field_name']) }}"
+                                                       placeholder="{{$field['field_name']}}"
+
+                                                >
+                                                <div class="text-danger">@error($field['field_name']) {{ $message }}
+                                                    @enderror
+                                                </div>
+                                            @break
+                                            @case('enum')
+                                            <select class="form-control"
+                                                    name="{{$field['field_name']}}"
+                                                    required
+                                            >
+                                                <option value="">Select your {{$field['field_name']}}</option>
+                                                @foreach($field['enum_data'] as $data)
+                                                <option>     {{$data}}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="text-danger">@error($field['field_name']) {{ $message }}
+                                                @enderror
+                                            </div>
+                                            @break
+                                            @default
+                                            @break
+
+                                        @endswitch
+
+
+                                    </div>
+                                </div>
+                            @endforeach
+                        @endif
                         <div class="mb-2">
                             <label class="form-check">
                                 <input type="checkbox" class="form-check-input"/>

@@ -13,6 +13,9 @@ class ModulesAuthServiceProvider extends ServiceProvider {
       __DIR__.'/config/modules-auth.php' => config_path('modules-auth.php'),
     ], 'config');
     $this->publishes([
+      __DIR__.'/config/modules-auth-form-fields.php' => config_path('modules-auth-form-fields.php'),
+    ], 'config');
+    $this->publishes([
       __DIR__.'/assets' => public_path('vendor/modules-auth')
     ], 'modules-auth');
     $this->publishes([
