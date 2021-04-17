@@ -63,26 +63,48 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Role</label>
-                                        <select class="form-control" name="role" value="{{ old('role') }}">
-                                            <option value="web">Web developer</option>
-                                            <option value="web">UI & UX</option>
-                                        </select>
-                                        <div class="text-danger">@error('role') {{ $message }} @enderror</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 col-12">
-                                    <div class="mb-3">
-                                        <label class="form-label">Select Framework</label>
-                                        <select class="form-control" name="framework" value="{{ old('framework') }}">
-                                            <option value="web">Laravel</option>
-                                            <option value="web">Nuxtjs</option>
-                                        </select>
-                                        <div class="text-danger">@error('framework') {{ $message }} @enderror</div>
-                                    </div>
-                                </div>
+                                @if ($custom_form_fields)
+                                    @foreach($form_fields as $field)
+                                        <div class="col-md-6 col-12 mb-2">
+                                            <label class="form-label">{{$field['field_name']}}</label>
+                                            <div class="mb-3">
+                                                @switch($field['field_type'])
+                                                    @case('string')
+                                                        <input class="form-control"
+                                                            type="text"
+                                                            name="{{$field['field_name']}}"
+                                                            value="{{ old($field['field_name']) }}"
+                                                            placeholder="{{$field['field_name']}}"
+
+                                                        >
+                                                        <div class="text-danger">@error($field['field_name']) {{ $message }}
+                                                            @enderror
+                                                        </div>
+                                                    @break
+                                                    @case('enum')
+                                                    <select class="form-control"
+                                                            name="{{$field['field_name']}}"
+                                                            required
+                                                    >
+                                                        <option value="">Select your {{$field['field_name']}}</option>
+                                                        @foreach($field['enum_data'] as $data)
+                                                        <option>     {{$data}}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="text-danger">@error($field['field_name']) {{ $message }}
+                                                        @enderror
+                                                    </div>
+                                                    @break
+                                                    @default
+                                                    @break
+
+                                                @endswitch
+
+
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                @endif
                             </div>
 
                             <div class="mb-2">
@@ -101,60 +123,8 @@
                                 </label>
                             </div>
                             <div class="form-footer">
-                                <button type="button" class="btn btn-primary w-100">Register</button>
+                                <button type="submit" class="btn btn-primary w-100">Register</button>
                             </div>
-                        </div>
-
-                        @if ($custom_form_fields)
-                            @foreach($form_fields as $field)
-                                <div class="mb-2">
-                                    <label class="form-label">{{$field['field_name']}}</label>
-                                    <div class="mb-3">
-                                        @switch($field['field_type'])
-                                            @case('string')
-                                                <input class="form-control"
-                                                       type="text"
-                                                       name="{{$field['field_name']}}"
-                                                       value="{{ old($field['field_name']) }}"
-                                                       placeholder="{{$field['field_name']}}"
-
-                                                >
-                                                <div class="text-danger">@error($field['field_name']) {{ $message }}
-                                                    @enderror
-                                                </div>
-                                            @break
-                                            @case('enum')
-                                            <select class="form-control"
-                                                    name="{{$field['field_name']}}"
-                                                    required
-                                            >
-                                                <option value="">Select your {{$field['field_name']}}</option>
-                                                @foreach($field['enum_data'] as $data)
-                                                <option>     {{$data}}</option>
-                                                @endforeach
-                                            </select>
-                                            <div class="text-danger">@error($field['field_name']) {{ $message }}
-                                                @enderror
-                                            </div>
-                                            @break
-                                            @default
-                                            @break
-
-                                        @endswitch
-
-
-                                    </div>
-                                </div>
-                            @endforeach
-                        @endif
-                        <div class="mb-2">
-                            <label class="form-check">
-                                <input type="checkbox" class="form-check-input"/>
-                                <span class="form-check-label">Remember me on this device</span>
-                            </label>
-                        </div>
-                        <div class="form-footer">
-                            <button type="submit" class="btn btn-primary w-100">Register</button>
                         </div>
                     </div>
 
