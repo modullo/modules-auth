@@ -89,6 +89,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
         }
         return $user;
      });
+        dd($user);
     if (!$user){
         return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
     }
