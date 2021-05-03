@@ -74,7 +74,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
         $user = DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-        dd($modulloUser);
+//        dd($modulloUser);
         if ($modulloUser){
             $user = User::updateOrCreate(['uuid' => $modulloUser->id],
                [
