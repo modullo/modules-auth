@@ -26,6 +26,7 @@ class CreateAuthUsersTable extends Migration
           $table->string('last_name')->nullable();
           $table->enum('gender',['male','female'])->nullable();
           $table->string('phone_number')->nullable();
+          $table->enum('role',['admin','developer'])->default('developer');
           $table->rememberToken();
           $table->timestamps();
           $table->softDeletes();

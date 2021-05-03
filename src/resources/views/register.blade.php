@@ -4,8 +4,8 @@
 @endsection
 
 @section('body_content_main')
-    <section class="antialiased border-top-wide border-primary d-flex flex-colum align-items-center">
-        <div class="col-lg-6 col-md-6 col-12 mx-auto">
+    <section class="antialiased border-top-wide border-primary row">
+        <div class="col-lg-5 col-md-6 col-12">
             <div class="flex-fill d-flex flex-column justify-content-center py-4">
                 <div class="container-tight py-6">
                     <form class="card card-md" action="{{route('auth.register')}}" method="post" autocomplete="off">
@@ -126,7 +126,7 @@
                                 <button type="submit" class="btn btn-primary w-100">Register</button>
                             </div>
                         </div>
-                    </div>
+
 
                     </form>
                     <div class="text-center text-muted mt-3">
@@ -135,6 +135,10 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-lg-7 col-md-6 col-12" style="padding-top:5rem ">
+            <div class="" style="background-image: url('{{ asset('dev.jpeg') }}');background-size: cover;background-position: center center; height: 60vh; "></div>
+{{--            <img src="{{ asset('dev.jpeg') }}" alt="" style="height: 45vh">--}}
         </div>
 
     </section>

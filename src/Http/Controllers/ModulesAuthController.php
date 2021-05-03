@@ -92,7 +92,8 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
     if (!$user){
         return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
     }
-    return $this->loginRedirect($user);
+    $type = 'login';
+    return $this->loginRedirect($user,false);
     }
     catch (\Throwable $e){
       Log::error($e->getMessage());
@@ -101,9 +102,21 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
   }
 
 
-  protected function loginRedirect(User $user){
-    Auth::guard('web')->login($user);
-    return redirect()->route('dev-dashboard');
+  protected function loginRedirect(User $user, $type){
+      if($type) {
+          Auth::guard('web')->login($user);
+          return redirect()->route('dev-dashboard');
+      }
+
+      if($user->role === 'developer'){
+          Auth::guard('web')->login($user);
+          return redirect()->route('dev-dashboard');
+      }
+
+      if($user->role === 'admin'){
+          Auth::guard('web')->login($user);
+          return redirect()->route('admin');
+      }
   }
 
 
@@ -148,7 +161,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
        if (!$user){
         return redirect()->route('register')->withErrors(['message' => 'account credentials could not be created']);
        }
-      return $this->loginRedirect($user);
+      return $this->loginRedirect($user,true);
     }
     catch (\Throwable $e){
       Log::error($e->getMessage());
