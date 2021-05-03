@@ -69,11 +69,11 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
           'email' => 'required|email',
           'password' => 'required',
         ]);
-dd($request);
      try {
         $user = null;
         $user = DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
+        dd($provider);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
         if ($modulloUser){
             $user = User::updateOrCreate(['uuid' => $modulloUser->id],
