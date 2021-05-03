@@ -1,7 +1,7 @@
 <?php
 
-
 namespace Modullo\ModulesAuth\Http\Controllers;
+
 use App\Http\Controllers\Hub\HubController;
 use App\Models\User;
 use Doctrine\DBAL\Exception;
@@ -73,7 +73,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
      try {
         $user = null;
-        DB::transaction(function () use ($sdk,$request,&$user){
+        DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
         if ($modulloUser){
