@@ -72,7 +72,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
      try {
         $user = null;
-        DB::transaction(function () use ($sdk,$request,$user){
+        $user = DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
         if ($modulloUser){
@@ -87,6 +87,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
               ]
             );
         }
+        return $user;
      });
     if (!$user){
         return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
