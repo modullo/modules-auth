@@ -3,12 +3,11 @@
 return [
   'fields' => [
     [
-      'field_name' => 'profession',
+      'field_name' => 'role',
       'field_type' => 'enum',
       'enum_data' => [
-        'developer',
-        'designer',
-        'project management'
+        'student',
+        'course instructor',
       ],
     ],
 

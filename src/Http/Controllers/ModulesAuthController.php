@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use function PHPUnit\Framework\isEmpty;
 
 class ModulesAuthController extends \App\Http\Controllers\Controller
 {
@@ -109,7 +110,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
   protected function loginRedirect(User $user, $type){
       if($type === 'admin') {
           Auth::guard('web')->login($user);
-          return redirect()->route('learner-courses');
+          return redirect()->route('tenant-dashboard');
       }
 
       if($type === 'student'){
@@ -121,6 +122,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
   protected function addCustomFields(User $user, array $data): bool
   {
+
     $this->updateModelAttributes($user,$data,$this->loadUpdatableFields());
     return $user->save();
   }
@@ -158,7 +160,10 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
        }
        $user = null;
        $user = $this->create($user,$sdk,$response);
-       $this->addCustomFields($user,$request->all());
+       if(!isEmpty($this->loadUpdatableFields())){
+           $this->addCustomFields($user,$request->all());
+
+       }
        if (!$user){
         return redirect()->route('register')->withErrors(['message' => 'account credentials could not be created']);
        }
