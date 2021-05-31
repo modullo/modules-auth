@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class ModulesAuthController extends \App\Http\Controllers\Controller
 {
-  private $data;
+  protected array $data;
 
   public function __construct() {
     $this->data = [
@@ -74,7 +74,6 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
         $user = DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-//        dd($modulloUser);
         if ($modulloUser){
             $user = User::updateOrCreate(['uuid' => $modulloUser->id],
                [
@@ -92,8 +91,13 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
     if (!$user){
         return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
     }
-    $type = 'login';
-    return $this->loginRedirect($user,false);
+    if($user->email === 'ayotomideaina@gmail.com'){
+        $type = 'admin';
+    }
+    else{
+        $type = 'student';
+    }
+    return $this->loginRedirect($user,$type);
     }
     catch (\Throwable $e){
       Log::error($e->getMessage());
@@ -103,19 +107,14 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
 
   protected function loginRedirect(User $user, $type){
-      if($type) {
+      if($type === 'admin') {
           Auth::guard('web')->login($user);
-          return redirect()->route('dev-dashboard');
+          return redirect()->route('learner-courses');
       }
 
-      if($user->role === 'developer'){
+      if($type === 'student'){
           Auth::guard('web')->login($user);
-          return redirect()->route('dev-dashboard');
-      }
-
-      if($user->role === 'admin'){
-          Auth::guard('web')->login($user);
-          return redirect()->route('admin');
+          return redirect()->route('learner-dashboard');
       }
   }
 
@@ -127,8 +126,10 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
   }
 
 
-
-  public function register(Request  $request, Sdk $sdk){
+    /**
+     * @throws \Exception
+     */
+    public function register(Request  $request, Sdk $sdk){
     $request->validate([
       'email' => 'required|email|unique:users',
       'password' => 'required',
@@ -161,7 +162,13 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
        if (!$user){
         return redirect()->route('register')->withErrors(['message' => 'account credentials could not be created']);
        }
-      return $this->loginRedirect($user,true);
+       if($user->email === 'ayotomideaina@gmail.com'){
+           $type = 'admin';
+       }
+       else{
+           $type = 'student';
+       }
+      return $this->loginRedirect($user,$type);
     }
     catch (\Throwable $e){
       Log::error($e->getMessage());
