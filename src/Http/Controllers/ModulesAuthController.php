@@ -110,7 +110,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
   protected function loginRedirect(User $user, $type){
       if($type === 'admin') {
           Auth::guard('web')->login($user);
-          return redirect()->route('tenant-dashboard');
+          return redirect()->route('learner-dashboard');
       }
 
       if($type === 'student'){
