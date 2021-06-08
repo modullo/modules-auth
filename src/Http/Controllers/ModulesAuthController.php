@@ -53,7 +53,6 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
 
   public function showLoginForm(){
     $this->data['company_logo'] = config('modules-auth.view.company_logo') ?? asset('vendor/modules-auth/logo/modullo.png');
-
     return view('modules-auth::login',$this->data);
   }
 
@@ -86,6 +85,9 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
               ]
             );
         }
+        $user->fill([
+            'role' => $modulloUser->role
+        ]);
         return $user;
      });
     if (!$user){
@@ -109,9 +111,8 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
   protected function loginRedirect(User $user, $type){
       if($type === 'admin') {
           Auth::guard('web')->login($user);
-          return redirect()->route('learner-dashboard');
+          return redirect()->route('tenant-dashboard');
       }
-
       if($type === 'student'){
           Auth::guard('web')->login($user);
           return redirect()->route('learner-dashboard');
