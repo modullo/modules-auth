@@ -75,15 +75,14 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
         $user = DB::transaction(function () use ($sdk,$request,$user){
         $provider = new ModulloUserProvider($sdk);
         $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-        if ($modulloUser){
+        if ($modulloUser &&  $modulloUser->role === 'lms_tenant'){
             $user = User::updateOrCreate(['uuid' => $modulloUser->id],
                [
                 'uuid' => $modulloUser->id,
                 'email' => $modulloUser->email,
-                'first_name' => $modulloUser->first_name,
-                'last_name' => $modulloUser->last_name,
+                'first_name' => $modulloUser->tenant['company'],
+                'last_name' => $modulloUser->tenant['company'],
                 'password' => $modulloUser->password,
-                'phone_number' => $modulloUser->phone_number,
               ]
             );
         }
@@ -92,7 +91,7 @@ class ModulesAuthController extends \App\Http\Controllers\Controller
     if (!$user){
         return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
     }
-    if($user->email === 'ayotomideaina@gmail.com'){
+    if($user->role === 'lms_tenant'){
         $type = 'admin';
     }
     else{
