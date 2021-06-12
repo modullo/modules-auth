@@ -53,9 +53,10 @@ class CreateAuthUsersTable extends Migration
         });
       }
       else{
-       Schema::table('users',function (Blueprint $table) use ($hasCustom){
+      if(!\Illuminate\Support\Facades\DB::table('migrations')->where('migration','like','%create_auth_users%')->exists()){
+          Schema::table('users',function (Blueprint $table) use ($hasCustom){
               if (Schema::hasColumns('users',['name'])){
-                $table->string('name')->nullable()->change();
+                  $table->string('name')->nullable()->change();
               }
               $table->uuid('uuid')->nullable();
               $table->string('first_name')->nullable();
@@ -64,40 +65,34 @@ class CreateAuthUsersTable extends Migration
               $table->string('phone_number')->nullable();
               $table->softDeletes();
 
-                  if ($hasCustom){
-                          $fields = config('modules-auth-form-fields.fields');
-                          foreach ($fields as $field){
-                            switch ($field['field_type']){
-                              case 'string':
-                                $table->string($field['field_name'])->nullable();
-                                break;
-                              case 'enum':
-                                $table->enum($field['field_name'],$field['enum_data'])->nullable();
-                                break;
-                              case 'date':
-                                $table->dateTime($field['field_name'])->nullable();
-                                break;
-                              case 'boolean':
-                                 $table->boolean($field['field_name'])->nullable();
-                                 break;
-                              default:
-                                break;
-                            }
-                          }
-                        }
-            });
+              if ($hasCustom){
+                  $fields = config('modules-auth-form-fields.fields');
+                  foreach ($fields as $field){
+                      switch ($field['field_type']){
+                          case 'string':
+                              $table->string($field['field_name'])->nullable();
+                              break;
+                          case 'enum':
+                              $table->enum($field['field_name'],$field['enum_data'])->nullable();
+                              break;
+                          case 'date':
+                              $table->dateTime($field['field_name'])->nullable();
+                              break;
+                          case 'boolean':
+                              $table->boolean($field['field_name'])->nullable();
+                              break;
+                          default:
+                              break;
+                      }
+                  }
+              }
+          });
+      }
+
       }
 
 
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
-    {
-      Schema::dropIfExists('users');
-    }
+
 }
