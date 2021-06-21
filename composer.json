@@ -47,5 +47,11 @@
       "php artisan optimize",
       "php artisan vendor:publish"
     ]
+  },
+  "repositories": {
+    "private-packagist": {
+      "type": "composer",
+      "url": "https://repo.packagist.com/modullo/"
+    }
   }
 }
