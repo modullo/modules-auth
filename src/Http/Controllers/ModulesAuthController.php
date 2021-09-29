@@ -66,7 +66,7 @@ class ModulesAuthController extends Controller
             $user = DB::transaction(function () use ($sdk, $request, $user) {
                 $provider = new ModulloUserProvider($sdk);
                 $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-                dd($modulloUser);
+                //dd($modulloUser);
                 if ($modulloUser) {
                     switch ($modulloUser->role) {
                         case 'lms_tenant':
@@ -90,6 +90,14 @@ class ModulesAuthController extends Controller
                                 ]);
                             break;
                         default:
+                            $user = User::updateOrCreate(['email' => $modulloUser->email],
+                                [
+                                    'uuid' => $modulloUser->id,
+                                    'email' => $modulloUser->email,
+                                    'first_name' => $modulloUser->first_name,
+                                    'last_name' => $modulloUser->last_name,
+                                    'password' => $modulloUser->password,
+                                ]);
                             break;
                     }
                     $user->fill([
