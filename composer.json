@@ -5,8 +5,12 @@
   "license": "GPL-3.0-or-later",
   "authors": [
     {
+      "name": "Ifeoluwa Olawoye",
+      "email": "bolaji.olawoye@hostvillenigeria.org"
+    },
+    {
       "name": "Ayotomide Aina",
-      "email": "ayotomideaina@gmail.com"
+      "email": "tomide@hostville.website"
     }
   ],
   "require": {

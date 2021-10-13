@@ -13,16 +13,17 @@ class ModulesAuthServiceProvider extends ServiceProvider {
     $this->loadViewsFrom(__DIR__.'/resources/views', 'modules-auth');
     $this->publishes([
       __DIR__.'/config/modules-auth.php' => config_path('modules-auth.php'),
-    ], 'config');
+    ], 'modullo-modules');
     $this->publishes([
       __DIR__.'/config/modules-auth-form-fields.php' => config_path('modules-auth-form-fields.php'),
-    ], 'config');
+    ], 'modullo-modules');
     $this->publishes([
       __DIR__.'/assets' => public_path('vendor/modules-auth')
-    ], 'modules-auth');
+    ], 'modullo-modules');
     if (!class_exists('CreateAuthUsersTable')){
         $this->publishes([
-            __DIR__ . '/../database/migrations/create_auth_users_table.php.stub' => $this->getMigrationFileName($filesystem,'create_auth_users_table')], 'migrations');
+            __DIR__ . '/../database/migrations/create_auth_users_table.php.stub' => $this->getMigrationFileName($filesystem,'create_auth_users_table')
+          ], 'migrations');
     }
 
   }
