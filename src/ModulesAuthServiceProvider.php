@@ -23,7 +23,7 @@ class ModulesAuthServiceProvider extends ServiceProvider {
     if (!class_exists('CreateAuthUsersTable')){
         $this->publishes([
             __DIR__ . '/../database/migrations/create_auth_users_table.php.stub' => $this->getMigrationFileName($filesystem,'create_auth_users_table')
-          ], 'migrations');
+          ], 'modullo-modules');
     }
 
   }

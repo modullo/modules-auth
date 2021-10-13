@@ -49,7 +49,7 @@
 
                     </form>
                     <div class="text-center text-muted mt-3">
-{{--                        Don't have account yet? <a href="{{route('register')}}" tabindex="-1">Sign up</a>--}}
+                        Don't have account yet? <a href="{{route('register')}}" tabindex="-1">Sign up</a>
 
                     </div>
                 </div>
@@ -57,11 +57,7 @@
         </div>
         <div class="col-lg-7 col-md-6 col-12" style="padding-top:5rem ">
             <div class="" style="background-image: url('{{ asset('dev.jpeg') }}');background-size: cover;background-position: center center; height: 60vh; "></div>
-            {{--            <img src="{{ asset('dev.jpeg') }}" alt="" style="height: 45vh">--}}
         </div>
-{{--        <div class="col-lg-6 col-md-6 col-12">--}}
-{{--            <img src="https://images.unsplash.com/photo-1593642634367-d91a135587b5?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="d-block w-100" style="height: 65vh; object-fit: cover" alt="...">--}}
-{{--        </div>--}}
 
     </section>
 
