@@ -12,7 +12,7 @@
                         @csrf
                         <div class="card-body">
                             <div class="text-center mb-4">
-                                <a ><img src="{{$company_logo}}" height="100" alt=""></a>
+                                <a ><img src="{{ $company_logo }}" height="100" alt=""></a>
                             </div>
                             @if ($errors->any())
                                 <div  class="alert alert-danger" role="alert">
@@ -130,7 +130,7 @@
 
                     </form>
                     <div class="text-center text-muted mt-3">
-                        Already have an account? <a href="{{route('login')}}" tabindex="-1">Login</a>
+                        Already have an account? <a href="{{ route('login') }}" tabindex="-1">Login</a>
 
                     </div>
                 </div>
@@ -138,7 +138,7 @@
         </div>
         <div class="col-lg-7 col-md-6 col-12" style="padding-top:5rem ">
             <div class="" style="background-image: url('{{ asset('dev.jpeg') }}');background-size: cover;background-position: center center; height: 60vh; "></div>
-{{--            <img src="{{ asset('dev.jpeg') }}" alt="" style="height: 45vh">--}}
+{{--            <img src="{{ env('MODULLO_AUTH_IMAGE') ?? asset('dev.jpeg') }}" alt="" style="height: 45vh">--}}
         </div>
 
     </section>
