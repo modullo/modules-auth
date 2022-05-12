@@ -64,10 +64,11 @@ class ModulesAuthController extends Controller
         ]);
         try {
             $user = null;
-            $user = DB::transaction(function () use ($sdk, $request, &$user) {
+            $user_type = 'user';
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type) {
                 $provider = new ModulloUserProvider($sdk);
                 $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-                //dd([$sdk,$provider,$modulloUser,$request]);
+                //dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
                 if ($modulloUser) {
                     $roles = $modulloUser->roles;
                     $role = $roles[0]; // use the first role
@@ -81,6 +82,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->tenant['company'],
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = "admin";
                             break;
                         case 'lms_learner':
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -91,6 +93,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->learner['last_name'],
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = "student";
                             break;
                         case 'eos-overlord':
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -101,6 +104,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->last_name,
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = 'eos-overlord';
                             break;
                         case 'eos-developer':
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -111,6 +115,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->last_name,
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = 'eos-developer';
                             break;
                         default:
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -140,25 +145,7 @@ class ModulesAuthController extends Controller
                 return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
             }
 
-            switch ($user->role) {
-                case 'lms_tenant':
-                    $type = 'admin';
-                    break;
-                case 'lms_learner':
-                    $type = 'user';
-                    break;
-                case 'eos-overlord':
-                    $type = 'eos-overlord';
-                    break;
-                case 'eos-developer':
-                    $type = 'eos-developer';
-                    break;
-                default:
-                $type = 'user';
-                    break;
-            }
-
-            return $this->loginRedirect($user, $type);
+            return $this->loginRedirect($user, $user_type);
 
         } catch (Throwable $e) {
             Log::error($e->getMessage());
