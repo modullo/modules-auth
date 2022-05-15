@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use Throwable;
 use UnexpectedValueException;
 use function PHPUnit\Framework\isEmpty;
@@ -131,7 +132,8 @@ class ModulesAuthController extends Controller
         }
         if ($type === 'student') {
             Auth::guard('web')->login($user);
-            return redirect()->route('learner-dashboard');
+            //return redirect()->route('learner-dashboard');
+            return redirect()->route('dashboards-learner');
         }
     }
 
@@ -175,7 +177,7 @@ class ModulesAuthController extends Controller
             if (!$user) {
                 return redirect()->route('register')->withErrors(['message' => 'account credentials could not be created']);
             }
-            if ($user->email === 'ayotomideaina@gmail.com') {
+            if ($user->email === 'tenant@modullo.io') {
                 $type = 'admin';
             } else {
                 $type = 'student';
