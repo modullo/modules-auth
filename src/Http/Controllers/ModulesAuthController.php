@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Session;
+
 use Throwable;
 use UnexpectedValueException;
 use function PHPUnit\Framework\isEmpty;
@@ -64,12 +66,15 @@ class ModulesAuthController extends Controller
         ]);
         try {
             $user = null;
-            $user = DB::transaction(function () use ($sdk, $request, $user) {
+            $user_type = 'user';
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type) {
                 $provider = new ModulloUserProvider($sdk);
                 $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
-                //dd([$sdk,$provider,$modulloUser,$request]);
+                //dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
                 if ($modulloUser) {
-                    switch ($modulloUser->role) {
+                    $roles = $modulloUser->roles;
+                    $role = $roles[0]; // use the first role
+                    switch ($role["name"]) {
                         case 'lms_tenant':
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
                                 [
@@ -79,6 +84,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->tenant['company'],
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = "admin";
                             break;
                         case 'lms_learner':
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -89,6 +95,29 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->learner['last_name'],
                                     'password' => $modulloUser->password,
                                 ]);
+                            $user_type = "student";
+                            break;
+                        case 'eos-overlord':
+                            $user = User::updateOrCreate(['email' => $modulloUser->email],
+                                [
+                                    'uuid' => $modulloUser->id,
+                                    'email' => $modulloUser->email,
+                                    'first_name' => $modulloUser->first_name,
+                                    'last_name' => $modulloUser->last_name,
+                                    'password' => $modulloUser->password,
+                                ]);
+                            $user_type = 'eos-overlord';
+                            break;
+                        case 'eos-developer':
+                            $user = User::updateOrCreate(['email' => $modulloUser->email],
+                                [
+                                    'uuid' => $modulloUser->id,
+                                    'email' => $modulloUser->email,
+                                    'first_name' => $modulloUser->first_name,
+                                    'last_name' => $modulloUser->last_name,
+                                    'password' => $modulloUser->password,
+                                ]);
+                            $user_type = 'eos-developer';
                             break;
                         default:
                             $user = User::updateOrCreate(['email' => $modulloUser->email],
@@ -101,23 +130,25 @@ class ModulesAuthController extends Controller
                                 ]);
                             break;
                     }
+
                     $user->fill([
-                        'role' => $modulloUser->role
+                        'role' => $role["name"]
                     ]);
+
+                    Session::put("modulloUserRole", $role["name"]);
+
                     return $user;
 
                 }
 
             });
+            
             if (!$user) {
                 return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
             }
-            if ($user->role === 'lms_tenant') {
-                $type = 'admin';
-            } else {
-                $type = 'student';
-            }
-            return $this->loginRedirect($user, $type);
+
+            return $this->loginRedirect($user, $user_type);
+
         } catch (Throwable $e) {
             Log::error($e->getMessage());
             throw new Exception($e->getMessage());
@@ -126,15 +157,39 @@ class ModulesAuthController extends Controller
 
     protected function loginRedirect(User $user, $type)
     {
-        if ($type === 'admin') {
-            Auth::guard('web')->login($user);
-            return redirect()->route('tenant-dashboard');
+
+        switch ($type) {
+            case 'overlord':
+                Auth::guard('web')->login($user);
+                return redirect()->route('dashboard');
+                break;
+            case 'admin':
+                Auth::guard('web')->login($user);
+                return redirect()->route('tenant-dashboard');
+                break;
+            case 'student':
+                Auth::guard('web')->login($user);
+                return redirect()->route('learner-dashboard');
+                break;
+            case 'user':
+                Auth::guard('web')->login($user);
+                return redirect()->route('dashboard');
+                break;
+            case 'eos-overlord':
+                Auth::guard('web')->login($user);
+                return redirect()->route('admin-dashboard');
+                break;
+            case 'eos-developer':
+                Auth::guard('web')->login($user);
+                return redirect()->route('developer-dashboard');
+                break;
+            default:
+                Auth::guard('web')->login($user);
+                return redirect()->route('dashboard');
+                break;
+
         }
-        if ($type === 'student') {
-            Auth::guard('web')->login($user);
-            //return redirect()->route('learner-dashboard');
-            return redirect()->route('dashboards-learner');
-        }
+
     }
 
     /**
@@ -177,10 +232,11 @@ class ModulesAuthController extends Controller
             if (!$user) {
                 return redirect()->route('register')->withErrors(['message' => 'account credentials could not be created']);
             }
-            if ($user->email === 'tenant@modullo.io') {
-                $type = 'admin';
+            $overlord_email = getenv('OVERLORD_EMAIL') ?? 'overlord@modullo.io';
+            if ($user->email === $overlord_email) {
+                $type = 'overlord';
             } else {
-                $type = 'student';
+                $type = 'user';
             }
             return $this->loginRedirect($user, $type);
         } catch (Throwable $e) {
