@@ -68,7 +68,7 @@ class ModulesAuthController extends Controller
             $user = null;
             $user_type = 'user';
             $modulloType = env("MODULLO_TYPE", null);
-            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type) {
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type, $modulloType) {
                 $provider = new ModulloUserProvider($sdk);
                 $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password], $modulloType);
                 //dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
