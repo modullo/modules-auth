@@ -14,9 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
-
 use Throwable;
 use UnexpectedValueException;
 use function PHPUnit\Framework\isEmpty;
@@ -67,11 +65,10 @@ class ModulesAuthController extends Controller
         try {
             $user = null;
             $user_type = 'user';
-            $modulloType = env("MODULLO_TYPE", null);
-            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type, $modulloType) {
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type) {
                 $provider = new ModulloUserProvider($sdk);
-                $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password], $modulloType);
-                //dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
+                $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password]);
+//                dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
                 if ($modulloUser) {
                     $roles = $modulloUser->roles;
                     $role = $roles[0]; // use the first role
@@ -81,9 +78,10 @@ class ModulesAuthController extends Controller
                                 [
                                     'uuid' => $modulloUser->id,
                                     'email' => $modulloUser->email,
-                                    'first_name' => $modulloUser->tenant['company'],
-                                    'last_name' => $modulloUser->tenant['company'],
+//                                    'first_name' => $modulloUser->tenant['company'],
+//                                    'last_name' => $modulloUser->tenant['company'],
                                     'password' => $modulloUser->password,
+                                    'organization_details' => $modulloUser->tenant,
                                 ]);
                             $user_type = "admin";
                             break;
@@ -95,6 +93,7 @@ class ModulesAuthController extends Controller
                                     'first_name' => $modulloUser->learner['first_name'],
                                     'last_name' => $modulloUser->learner['last_name'],
                                     'password' => $modulloUser->password,
+                                    'phone_number' => $modulloUser->learner['phone_number'],
                                 ]);
                             $user_type = "student";
                             break;
@@ -132,7 +131,7 @@ class ModulesAuthController extends Controller
                             break;
                     }
 
-                    $user->fill([
+                    $user->update([
                         'role' => $role["name"]
                     ]);
 
@@ -143,7 +142,7 @@ class ModulesAuthController extends Controller
                 }
 
             });
-            
+
             if (!$user) {
                 return redirect()->route('login')->withErrors(['message' => 'account credentials could not be found']);
             }
@@ -188,7 +187,6 @@ class ModulesAuthController extends Controller
                 Auth::guard('web')->login($user);
                 return redirect()->route('dashboard');
                 break;
-
         }
 
     }
