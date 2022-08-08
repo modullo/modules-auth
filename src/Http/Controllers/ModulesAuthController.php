@@ -95,6 +95,7 @@ class ModulesAuthController extends Controller
                                     'last_name' => $modulloUser->learner['last_name'],
                                     'password' => $modulloUser->password,
                                     'phone_number' => $modulloUser->learner['phone_number'],
+                                    'learner_details' => $modulloUser->learner,
                                 ]);
                             $user_type = "student";
                             break;
