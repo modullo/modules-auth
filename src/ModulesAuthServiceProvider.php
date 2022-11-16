@@ -10,6 +10,7 @@ class ModulesAuthServiceProvider extends ServiceProvider {
   public function boot(Filesystem $filesystem)
   {
     $this->loadRoutesFrom(__DIR__.'/routes/web.php');
+    $this->loadRoutesFrom(__DIR__.'/routes/api.php');
     $this->loadViewsFrom(__DIR__.'/resources/views', 'modules-auth');
     $this->publishes([
       __DIR__.'/config/modules-auth.php' => config_path('modules-auth.php'),

@@ -12,7 +12,7 @@
                         @csrf
                         <div class="card-body">
                             <div class="text-center mb-4">
-                                <a ><img src="{{ $company_logo }}" height="100" alt=""></a>
+                                <a href="{{route('home')}}"><img src="{{ $company_logo }}" height="100" alt=""></a>
                             </div>
                             @if ($errors->any())
                                 <div  class="alert alert-danger" role="alert">
