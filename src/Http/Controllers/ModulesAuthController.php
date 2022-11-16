@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -73,65 +74,9 @@ class ModulesAuthController extends Controller
                 if ($modulloUser) {
                     $roles = $modulloUser->roles;
                     $role = $roles[0]; // use the first role
-                    switch ($role["name"]) {
-                        case 'lms_tenant':
-                            $user = User::updateOrCreate(['email' => $modulloUser->email],
-                                [
-                                    'uuid' => $modulloUser->id,
-                                    'email' => $modulloUser->email,
-//                                    'first_name' => $modulloUser->tenant['company'],
-//                                    'last_name' => $modulloUser->tenant['company'],
-                                    'password' => $modulloUser->password,
-                                    'organization_details' => $modulloUser->tenant,
-                                ]);
-                            $user_type = "admin";
-                            break;
-                        case 'lms_learner':
-                            $user = User::updateOrCreate(['email' => $modulloUser->email],
-                                [
-                                    'uuid' => $modulloUser->id,
-                                    'email' => $modulloUser->email,
-                                    'first_name' => $modulloUser->learner['first_name'],
-                                    'last_name' => $modulloUser->learner['last_name'],
-                                    'password' => $modulloUser->password,
-                                    'phone_number' => $modulloUser->learner['phone_number'],
-                                    'learner_details' => $modulloUser->learner,
-                                ]);
-                            $user_type = "student";
-                            break;
-                        case 'eos-overlord':
-                            $user = User::updateOrCreate(['email' => $modulloUser->email],
-                                [
-                                    'uuid' => $modulloUser->id,
-                                    'email' => $modulloUser->email,
-                                    'first_name' => $modulloUser->first_name,
-                                    'last_name' => $modulloUser->last_name,
-                                    'password' => $modulloUser->password,
-                                ]);
-                            $user_type = 'eos-overlord';
-                            break;
-                        case 'eos-developer':
-                            $user = User::updateOrCreate(['email' => $modulloUser->email],
-                                [
-                                    'uuid' => $modulloUser->id,
-                                    'email' => $modulloUser->email,
-                                    'first_name' => $modulloUser->first_name,
-                                    'last_name' => $modulloUser->last_name,
-                                    'password' => $modulloUser->password,
-                                ]);
-                            $user_type = 'eos-developer';
-                            break;
-                        default:
-                            $user = User::updateOrCreate(['email' => $modulloUser->email],
-                                [
-                                    'uuid' => $modulloUser->id,
-                                    'email' => $modulloUser->email,
-                                    'first_name' => $modulloUser->first_name,
-                                    'last_name' => $modulloUser->last_name,
-                                    'password' => $modulloUser->password,
-                                ]);
-                            break;
-                    }
+                    $update = $this->updateUser($role,$modulloUser,$user_type);
+                    $user = $update['user'];
+                    $user_type = $update['type'];
 
                     $user->update([
                         'role' => $role["name"]
@@ -150,6 +95,58 @@ class ModulesAuthController extends Controller
             }
 
             return $this->loginRedirect($user, $user_type);
+
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    public function loginForTokenUsers(Request $request, Sdk $sdk)
+    {
+        if(!$request->filled('email')){
+            $request->request->add(['email' => $request->user()->email]);
+        }
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        try {
+            $user = null;
+            $user_type = 'user';
+            $token = null;
+            $modulloType = env("MODULLO_TYPE", null);
+//            dd($clientId);
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type, &$token, $modulloType) {
+                $clientId = config('modullo-api.personal_client.id');
+                $clientSecret = config('modullo-api.personal_client.secret');
+                $provider = new ModulloUserProvider($sdk);
+                $modulloUser = $provider->retrieveByEmailOnly(['email' => $request->email,'client_id'=>$clientId,'client_secret'=>$clientSecret,'grant_type'=>'client_credentials']);
+//                dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
+                if ($modulloUser) {
+                    $roles = $modulloUser->roles;
+                    $role = $roles[0]; // use the first role
+                    $update = $this->updateUser($role,$modulloUser,$user_type);
+                    $user = $update['user'];
+                    $user_type = $update['type'];
+                    $token = Cache::get('modullo.auth_token.'.$user['uuid'], null);
+
+                    $user->update([
+                        'role' => $role["name"]
+                    ]);
+
+//                    Session::put("modulloUserRole", $role["name"]);
+
+                    return $user;
+
+                }
+
+            });
+
+            if (!$user) {
+                return response()->json(['error' => 'account credentials could not be found'],400);
+            }
+
+            return response()->json(['message' => 'login successfull','user' => $user,'user_type' => $user_type,'token' => $token],200);
 
         } catch (Throwable $e) {
             Log::error($e->getMessage());
@@ -193,6 +190,71 @@ class ModulesAuthController extends Controller
 
     }
 
+    private function updateUser($role,$modulloUser,$user_type){
+        switch ($role["name"]) {
+            case 'lms_tenant':
+                $user = User::updateOrCreate(['email' => $modulloUser->email],
+                    [
+                        'uuid' => $modulloUser->id,
+                        'email' => $modulloUser->email,
+//                                    'first_name' => $modulloUser->tenant['company'],
+//                                    'last_name' => $modulloUser->tenant['company'],
+                        'password' => $modulloUser->password,
+                        'organization_details' => $modulloUser->tenant,
+                    ]);
+                $user_type = "admin";
+                break;
+            case 'lms_learner':
+                $user = User::updateOrCreate(['email' => $modulloUser->email],
+                    [
+                        'uuid' => $modulloUser->id,
+                        'email' => $modulloUser->email,
+                        'first_name' => $modulloUser->learner['first_name'],
+                        'last_name' => $modulloUser->learner['last_name'],
+                        'password' => $modulloUser->password,
+                        'phone_number' => $modulloUser->learner['phone_number'],
+                        'learner_details' => $modulloUser->learner,
+                    ]);
+                $user_type = "student";
+                break;
+            case 'eos-overlord':
+                $user = User::updateOrCreate(['email' => $modulloUser->email],
+                    [
+                        'uuid' => $modulloUser->id,
+                        'email' => $modulloUser->email,
+                        'first_name' => $modulloUser->first_name,
+                        'last_name' => $modulloUser->last_name,
+                        'password' => $modulloUser->password,
+                    ]);
+                $user_type = 'eos-overlord';
+                break;
+            case 'eos-developer':
+                $user = User::updateOrCreate(['email' => $modulloUser->email],
+                    [
+                        'uuid' => $modulloUser->id,
+                        'email' => $modulloUser->email,
+                        'first_name' => $modulloUser->first_name,
+                        'last_name' => $modulloUser->last_name,
+                        'password' => $modulloUser->password,
+                    ]);
+                $user_type = 'eos-developer';
+                break;
+            default:
+                $user = User::updateOrCreate(['email' => $modulloUser->email],
+                    [
+                        'uuid' => $modulloUser->id,
+                        'email' => $modulloUser->email,
+                        'first_name' => $modulloUser->first_name,
+                        'last_name' => $modulloUser->last_name,
+                        'password' => $modulloUser->password,
+                    ]);
+                break;
+        }
+        return [
+            'user' => $user,
+            'type' => $user_type,
+            ];
+    }
     /**
      * @throws Exception
      */
