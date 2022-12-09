@@ -23,6 +23,7 @@ use function PHPUnit\Framework\isEmpty;
 class ModulesAuthController extends Controller
 {
     protected array $data;
+    protected string $tenantType,$tenantId;
 
     public function __construct()
     {
@@ -33,6 +34,9 @@ class ModulesAuthController extends Controller
             'allow_registration' => config('modules-auth.view.allow_registration'),
             'custom_form_fields' => config('modules-auth.view.custom_form_fields'),
         ];
+
+        $this->tenantType = env("MODULLO_TENANT_TYPE", 'multi');
+        $this->tenantId = env("MODULLO_TENANT_ID", null);
 
     }
 
@@ -74,6 +78,14 @@ class ModulesAuthController extends Controller
                 if ($modulloUser) {
                     $roles = $modulloUser->roles;
                     $role = $roles[0]; // use the first role
+
+                    if($this->tenantType === 'single'){
+                        $checkAccess = $this->checkAccess($role['name'],$modulloUser);
+                        if (!$checkAccess) {
+                            return null;
+                        }
+                    }
+
                     $update = $this->updateUser($role,$modulloUser,$user_type);
                     $user = $update['user'];
                     $user_type = $update['type'];
@@ -100,6 +112,16 @@ class ModulesAuthController extends Controller
             Log::error($e->getMessage());
             throw new Exception($e->getMessage());
         }
+    }
+
+    private function checkAccess($role,$modulloUser){
+        if($role === 'lms_tenant' && $this->tenantId === $modulloUser->tenant['id']){
+            return true;
+        }
+        if($role === 'lms_learner' && $this->tenantId === $modulloUser->tenant_id){
+            return true;
+        }
+        return false;
     }
 
     public function loginForTokenUsers(Request $request, Sdk $sdk)
