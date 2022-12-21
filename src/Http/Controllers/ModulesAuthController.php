@@ -115,6 +115,7 @@ class ModulesAuthController extends Controller
     }
 
     private function checkAccess($role,$modulloUser){
+        dd($role,$this->tenantId,$modulloUser->tenant['id']);
         if($role === 'lms_tenant' && $this->tenantId === $modulloUser->tenant['id']){
             return true;
         }
