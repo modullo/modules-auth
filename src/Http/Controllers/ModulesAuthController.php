@@ -74,7 +74,6 @@ class ModulesAuthController extends Controller
             $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type, $modulloType) {
                 $provider = new ModulloUserProvider($sdk);
                 $modulloUser = $provider->retrieveByCredentials(['email' => $request->email, 'password' => $request->password],$modulloType);
-                dd($modulloUser);
 //                dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
                 if ($modulloUser) {
                     $roles = $modulloUser->roles;
@@ -116,7 +115,6 @@ class ModulesAuthController extends Controller
     }
 
     private function checkAccess($role,$modulloUser){
-        dd($role,$this->tenantId,$modulloUser->tenant['id']);
         if($role === 'lms_tenant' && $this->tenantId === $modulloUser->tenant['id']){
             return true;
         }
