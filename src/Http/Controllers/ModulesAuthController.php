@@ -176,6 +176,79 @@ class ModulesAuthController extends Controller
         }
     }
 
+    public function loginSSO(Request $request,$signature, Sdk $sdk)
+    {
+        try {
+            $signature = explode('**',decrypt($signature));
+            $email = $signature[0];
+            $tempPass = $signature[1];
+            $destination = $request->query('dest') ?? null;
+
+            $user = User::where('email',$email)->firstOrFail();
+            $realTempPass = decrypt($user->temp_password);
+            if ($realTempPass !== $tempPass){
+                throw new \Exception('Invalid signature');
+            }
+        }
+        catch (\Exception $e){
+            $message = $e->getMessage();
+            return view('modules-auth::error', compact('message'));
+        }
+
+        $request->request->add(['email' => $email]);
+        $request->validate([
+            'email' => 'required|email',
+        ]);
+        try {
+            $user = null;
+            $user_type = 'user';
+            $token = null;
+            $modulloType = env("MODULLO_TYPE", null);
+//            dd($clientId);
+            $user = DB::transaction(function () use ($sdk, $request, &$user, &$user_type, &$token, $modulloType) {
+                $clientId = config('modullo-api.personal_client.id');
+                $clientSecret = config('modullo-api.personal_client.secret');
+                $provider = new ModulloUserProvider($sdk);
+                $modulloUser = $provider->retrieveByEmailOnly(['email' => $request->email,'client_id'=>$clientId,'client_secret'=>$clientSecret,'grant_type'=>'client_credentials']);
+//                dd([$sdk,$provider,$modulloUser,$modulloUser->roles,$request]);
+                if ($modulloUser) {
+                    $roles = $modulloUser->roles;
+                    $role = $roles[0]; // use the first role
+                    $update = $this->updateUser($role,$modulloUser,$user_type);
+                    $user = $update['user'];
+                    $user_type = $update['type'];
+                    $token = Cache::get('modullo.auth_token.'.$user['uuid'], null);
+
+                    $user->update([
+                        'role' => $role["name"]
+                    ]);
+
+                    Session::put("modulloUserRole", $role["name"]);
+
+                    return $user;
+
+                }
+
+            });
+
+            if (!$user) {
+                $message = 'account credentials could not be found';
+                return view('modules-auth::error', compact('message'));
+            }
+
+            Auth::guard('web')->login($user);
+            if (!isset($destination) || is_null($destination)){
+                return redirect()->route('dashboard');
+            }
+            return redirect()->route($destination);
+
+        } catch (Throwable $e) {
+            Log::error($e->getMessage());
+            $message = $e->getMessage();
+            return view('modules-auth::error', compact('message'));
+        }
+    }
+
     protected function loginRedirect(User $user, $type)
     {
 
