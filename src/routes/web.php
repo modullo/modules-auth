@@ -11,6 +11,7 @@ Route::group(['namespace' => 'Modullo\ModulesAuth\Http\Controllers', 'middleware
 
   Route::group(['prefix' => 'auth','middleware' => ['guest']],function() {
       Route::get('login','ModulesAuthController@showLoginForm')->name('login');
+      Route::get('login-sso/{signature}','ModulesAuthController@loginSSO')->name('loginSSO');
       Route::get('register','ModulesAuthController@showRegisterForm')->name('register');
       Route::post('login','ModulesAuthController@login')->name('auth.login');
       Route::post('register','ModulesAuthController@register')->name('auth.register');
